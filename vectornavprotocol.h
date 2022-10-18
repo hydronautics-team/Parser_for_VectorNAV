@@ -12,15 +12,25 @@
 struct Header {
     uint8_t sync = 0xFA;
     uint8_t group = 0x01;
-    uint16_t group_1_fields = 0x08;
+    uint16_t group_1_fields = 0x0129;
 };
 
 //сама структура, которая приходит от VectorNav
 struct DataFromVectorNav {
     Header header;
+    uint64_t TimeStartup;
     float yaw;
     float pitch;
     float roll;
+    float X_rate;
+    float Y_rate;
+    float Z_rate;
+    float X_accel;
+    float Y_accel;
+    float Z_accel;
+
+
+
     union {
      //   unsigned short crc;
         uint8_t temp[2];
