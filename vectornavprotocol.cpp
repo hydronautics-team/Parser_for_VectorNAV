@@ -1,5 +1,6 @@
 #include "vectornavprotocol.h"
 #include <QDataStream>
+#include <QFile>
 
 
 VectorNavProtocol::VectorNavProtocol(QString portName, int baudRate, QObject *parent)
@@ -43,24 +44,6 @@ bool VectorNavProtocol::correctChecksum (QByteArray const &ba) {
     qDebug() << "false ";
     return false;
 }
-
-
-//bool VectorNavProtocol::correctChecksum (QByteArray const &ba) {
-//    if (calculateCRC((uchar*)ba.data(), 7) == ba.mid(16, 2)) {
-//        qDebug() << "true ";
-//        return true;
-//    }
-//    //   qDebug() << m_buffer;
-//    qDebug() << ba.data()[8];
-//    qDebug() << "false ";
-//    return false;
-//}
-//bool VectorNavProtocol::correctChecksum (QByteArray const &ba) {
-//    if (calculateCRC((uchar*)ba.data(), 8) == ba.mid(16, 2)) {
-//        return true;
-//    }
-//    return false;
-//}
 
 void VectorNavProtocol::readData() {
     m_buffer.append(m_port.readAll());
@@ -116,10 +99,9 @@ void VectorNavProtocol::parseBuffer() {
                 qDebug() << "Z_accel: " <<msg.Z_accel;
                 stream >> msg.temp[1];
                 stream >> msg.temp[0];
+
+             // emit newMessageDetected(*msg);
 }
-
-
-
 
 
 //        DataFromVectorNav* msg = reinterpret_cast<DataFromVectorNav*>(m_buffer.data()+index);
@@ -155,22 +137,5 @@ void VectorNavProtocol::parseBuffer() {
 //        qDebug() << "crc " << msg->crc;
         m_buffer.remove(0, index+49);
     return;
-
-
-
-//  emit newMessageDetected(*msg);
-
-    //разбор m_buffer;
-    //1. Если размер буфера меньше длины сообщения, то ничего не делаем,
-    //выходим из метода по return и ждём, когда придёт достаточное количество байт
-
-    //2. Если байт в буфере достаточное количество начинаем разбор
-    // в QByteArray есть метод indexOf (QByteArray ba, int from=0) - который возвращает индекс,
-    //где он первый раз встретил последовательность байт ba
-    //QByteArray header((char*) &(data.header),sizeof(Header));// сделала QByteArray из структуры
-    //int index = m_buffer.indexOf(header);//так можете получить индекс на первое нахождение заголовка в данных
-    //возвращает -1, если ничего не нашёл
-
-    //если найдено новое сообщение, то emit newMessageDetected()
 }
 

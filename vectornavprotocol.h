@@ -48,9 +48,10 @@ public:
 
     bool correctChecksum (QByteArray const &ba);//это метод, который проверяет корректность чексуммы
 signals:
-    void newMessageDetected(DataFromVectorNav data);
+ //   void newMessageDetected(DataFromVectorNav *msg);
 public slots:
     void readData(); //слот, который будет вызываться в ответ на readyRead
+ //   void writeLog(DataFromVectorNav *msg);
 
 protected:
     unsigned short calculateCRC(unsigned char data[], unsigned int length);
