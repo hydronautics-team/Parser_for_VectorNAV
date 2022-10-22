@@ -3,28 +3,34 @@
 #include <QObject>
 #include <QDebug>
 #include <QFile>
+#include <QDateTime>
 
-logger::logger(QObject *parent)
-    : QObject{parent}
-{
-    connect ();
-
+Logger::Logger(QObject *parent)
+    : QObject{parent}{
 }
 
 
-void logger::logStart() {
-    QFile file("dataVectorNAV.txt");
-    file.open(QIODevice::WriteOnly);
+void Logger::logStart() {
+    QString fileName = "dataVectorNAV"+QString(" ")+QDate::currentDate().toString("yy-MM-dd")+QString(" ")+QTime::currentTime().toString("hh-mm-ss")+".txt";
+    qDebug()<<fileName;
+    file.setFileName(fileName);
+
+    if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        qDebug()<<"file is opened";
+    }
+    else {
+        //qDebug()<<"file open error : "<<QDate::currentDate().toString()+QTime::currentTime().toString()+".txt";
+        qDebug()<<file.errorString() <<" " << file.error();
+    }
+    QTextStream stream2(&file);
+    stream2 << "TimeStartup,  msg.yaw, msg.pitch, msg.roll, msg.X_rate, msg.Y_rate,  msg.Z_rate,  msg.X_accel,  msg.Y_accel,  msg.Z_accel \n";
 }
 
-void logger::logTick(QFile file) {
-    QTextStream stream(&file);
-    stream << "TimeStartup: " << msg.TimeStartup << "yaw: " << msg.yaw << "pitch: " << msg.pitch << "roll: " << msg.roll << "X_rate: " << msg.X_rate << "Y_rate: " << msg.Y_rate << "Z_rate: " << msg.Z_rate << "X_accel: " << msg.X_accel << "Y_accel: "<< msg.Y_accel << "Z_accel: " << msg.Z_accel<<"\n";
+void Logger::logTick(DataFromVectorNav msg) {
+    QTextStream stream2(&file);
+    stream2 << msg.TimeStartup <<" , " <<  msg.yaw <<" , "<< msg.pitch<< " , " << msg.roll <<" , "<< msg.X_rate <<" , "<< msg.Y_rate << " , "<< msg.Z_rate << " , " << msg.X_accel << " , "<< msg.Y_accel << " , " << msg.Z_accel<<"\n";
 }
 
-void logger::logStop(QFile file) {
-file.close();
-
+void Logger::logStop() {
+    file.close();
 }
-
-

@@ -18,6 +18,7 @@ VectorNavProtocol::VectorNavProtocol(QString portName, int baudRate, QObject *pa
     m_port.waitForBytesWritten();
 
     connect(&m_port, &QSerialPort::readyRead, this, &VectorNavProtocol::readData);
+
 }
 
 unsigned short VectorNavProtocol::calculateCRC(unsigned char data[], unsigned int length) {
@@ -37,7 +38,6 @@ unsigned short VectorNavProtocol::calculateCRC(unsigned char data[], unsigned in
 
 bool VectorNavProtocol::correctChecksum (QByteArray const &ba) {
     if (calculateCRC((unsigned char*)ba.data(), ba.size()) == 0) {
-
         qDebug() << "true ";
         return true;
     }
@@ -67,75 +67,44 @@ void VectorNavProtocol::parseBuffer() {
         return;
     }
     if (correctChecksum(m_buffer.mid(index+1, 49))) {
-        qDebug()<<++count;
-
+        //qDebug()<<++count;
         DataFromVectorNav msg;
-                auto tmp = m_buffer.mid(index, 49);
-                QDataStream stream(&tmp, QIODevice::ReadOnly);
-                stream.setByteOrder(QDataStream::LittleEndian);
-                stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
-                stream >> msg.header.sync;
-                stream >> msg.header.group;
-                stream >> msg.header.group_1_fields;
-                stream >> msg.TimeStartup;
-                qDebug() << "TimeStartup: " <<msg.TimeStartup;
-                stream >> msg.yaw;
-                qDebug() << "yaw: " <<msg.yaw;
-                stream >>msg.pitch;
-                qDebug() << "pitch: " <<msg.pitch;
-                stream >> msg.roll;
-                qDebug() << "roll: " <<msg.roll;
-                stream >> msg.X_rate;
-                qDebug() << "X_rate: " <<msg.X_rate;
-                stream >>msg.Y_rate;
-                qDebug() << "Y_rate: " <<msg.Y_rate;
-                stream >> msg.Z_rate;
-                qDebug() << "Z_rate: " <<msg.Z_rate;
-                stream >> msg.X_accel;
-                qDebug() << "X_accel: " <<msg.X_accel;
-                stream >>msg.Y_accel;
-                qDebug() << "Y_accel: " <<msg.Y_accel;
-                stream >> msg.Z_accel;
-                qDebug() << "Z_accel: " <<msg.Z_accel;
-                stream >> msg.temp[1];
-                stream >> msg.temp[0];
-
-             // emit newMessageDetected(*msg);
-}
-
-
-//        DataFromVectorNav* msg = reinterpret_cast<DataFromVectorNav*>(m_buffer.data()+index);
-
-//        qDebug() << "X_accel: " << msg->yaw;
-//        qDebug() << "Y_accel: " << msg->Y_accel;
-//        qDebug() << "Z_accel: " << msg->Z_accel;
-//        qDebug() << "yaw: " << msg->yaw;
-//        qDebug() << "pitch: " << msg->pitch;
-//        qDebug() << "roll: " << msg->roll;
-
-
-        /*DataFromVectorNav msg;
-        auto tmp = m_buffer.mid(index, 18);
+        auto tmp = m_buffer.mid(index, 49);
         QDataStream stream(&tmp, QIODevice::ReadOnly);
-        stream.setByteOrder(QDataStream::BigEndian);
-        stream.setFloatingPointPrecision(QDataStream::DoublePrecision);
+        stream.setByteOrder(QDataStream::LittleEndian);
+        stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
         stream >> msg.header.sync;
         stream >> msg.header.group;
         stream >> msg.header.group_1_fields;
+        stream >> msg.TimeStartup;
+        //qDebug() << "TimeStartup: " <<msg.TimeStartup;
         stream >> msg.yaw;
+        //qDebug() << "yaw: " <<msg.yaw;
         stream >>msg.pitch;
-        qDebug() << "pitch: " <<msg.pitch;
+        //qDebug() << "pitch: " <<msg.pitch;
         stream >> msg.roll;
+        //qDebug() << "roll: " <<msg.roll;
+        stream >> msg.X_rate;
+        //qDebug() << "X_rate: " <<msg.X_rate;
+        stream >>msg.Y_rate;
+        //qDebug() << "Y_rate: " <<msg.Y_rate;
+        stream >> msg.Z_rate;
+        //qDebug() << "Z_rate: " <<msg.Z_rate;
+        stream >> msg.X_accel;
+        //qDebug() << "X_accel: " <<msg.X_accel;
+        stream >>msg.Y_accel;
+        //qDebug() << "Y_accel: " <<msg.Y_accel;
+        stream >> msg.Z_accel;
+        //qDebug() << "Z_accel: " <<msg.Z_accel;
         stream >> msg.temp[1];
-        stream >> msg.temp[0];  */
-
-//        DataFromVectorNav *msg = new DataFromVectorNav();
-//        memcpy(msg,m_buffer.data()+index,sizeof(DataFromVectorNav));
-//        qDebug() << "yaw: " << msg->yaw;
-//        qDebug() << "pitch: " << msg->pitch;
-//        qDebug() << "roll: " << msg->roll;
-//        qDebug() << "crc " << msg->crc;
+        stream >> msg.temp[0];
+        emit newMessageDetected(msg);
         m_buffer.remove(0, index+49);
+    }
+    else {
+        m_buffer.remove(0, index+1);
+    }
+
     return;
 }
 

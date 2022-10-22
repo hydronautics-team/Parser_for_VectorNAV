@@ -18,21 +18,18 @@ struct Header {
 //сама структура, которая приходит от VectorNav
 struct DataFromVectorNav {
     Header header;
-    uint64_t TimeStartup;
-    float yaw;
-    float pitch;
-    float roll;
-    float X_rate;
-    float Y_rate;
-    float Z_rate;
-    float X_accel;
-    float Y_accel;
-    float Z_accel;
-
-
-
+    uint64_t TimeStartup=0;
+    float yaw = 0;
+    float pitch=0;
+    float roll=0;
+    float X_rate=0;
+    float Y_rate=0;
+    float Z_rate=0;
+    float X_accel=0;
+    float Y_accel=0;
+    float Z_accel=0;
     union {
-     //   unsigned short crc;
+        unsigned short crc=0;
         uint8_t temp[2];
     };
 
@@ -48,17 +45,16 @@ public:
 
     bool correctChecksum (QByteArray const &ba);//это метод, который проверяет корректность чексуммы
 signals:
- //   void newMessageDetected(DataFromVectorNav *msg);
+   void newMessageDetected(DataFromVectorNav msg);
 public slots:
     void readData(); //слот, который будет вызываться в ответ на readyRead
- //   void writeLog(DataFromVectorNav *msg);
-
 protected:
     unsigned short calculateCRC(unsigned char data[], unsigned int length);
     void parseBuffer();
     QByteArray m_buffer;
     QSerialPort m_port; //объект COM-порта
     int baudRate = 115200; //бодрейт
+
 };
 
 #endif // VECTORNAVPROTOCOL_H
