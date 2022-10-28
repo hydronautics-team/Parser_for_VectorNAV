@@ -5,6 +5,7 @@
 #include <QSerialPort>
 #include <QDebug>
 #include <QTimer>
+#include <QTime>
 ;
 //класс протокола
 #pragma pack(push,1)
@@ -48,13 +49,17 @@ signals:
    void newMessageDetected(DataFromVectorNav msg);
 public slots:
     void readData(); //слот, который будет вызываться в ответ на readyRead
+//    void HandleError(QSerialPort::SerialPortError error);
+    void readyReadForTimer();
+    void timeoutSlot();
 protected:
     unsigned short calculateCRC(unsigned char data[], unsigned int length);
-    void parseBuffer();
+    void parseBuffer();   
     QByteArray m_buffer;
     QSerialPort m_port; //объект COM-порта
     int baudRate = 115200; //бодрейт
-
+    QTime time;
+    QTimer *timer;
 };
 
 #endif // VECTORNAVPROTOCOL_H

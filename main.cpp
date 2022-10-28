@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    VectorNavProtocol protocol ("COM5");
+    VectorNavProtocol protocol ("COM7");
     Logger logger;
     logger.logStart();
     QObject::connect(&protocol, &VectorNavProtocol::newMessageDetected,
