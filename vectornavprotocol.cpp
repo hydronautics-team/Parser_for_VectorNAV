@@ -1,6 +1,7 @@
 #include "vectornavprotocol.h"
 #include <QDataStream>
 #include <QFile>
+#include <QTime>
 
 
 VectorNavProtocol::VectorNavProtocol(QString portName, int baudRate, QObject *parent)
@@ -9,6 +10,11 @@ VectorNavProtocol::VectorNavProtocol(QString portName, int baudRate, QObject *pa
     m_port.setPortName(portName);
     m_port.open(QIODevice::ReadWrite);
 
+    if (m_port.open(QIODevice::ReadWrite) == false) {
+        m_port.setBaudRate(baudRate);
+        m_port.setPortName(portName);
+        m_port.open(QIODevice::ReadWrite);
+    }
     char cmd[20] = "$VNWRG,06,0*XX\r\n";//отключаем передачу данных ACSII
     m_port.write(cmd, 19);
     m_port.waitForBytesWritten();
@@ -17,7 +23,11 @@ VectorNavProtocol::VectorNavProtocol(QString portName, int baudRate, QObject *pa
     m_port.write(cmd2, 30);
     m_port.waitForBytesWritten();
 
+    QTimer *timer = new QTimer(this);
     connect(&m_port, &QSerialPort::readyRead, this, &VectorNavProtocol::readData);
+    connect(&m_port, &QSerialPort::readyRead, this, &VectorNavProtocol::readyReadForTimer);
+    connect(timer, &QTimer::timeout, this, &VectorNavProtocol::timeoutSlot);
+    timer->start(3000);
 
 }
 
@@ -50,6 +60,21 @@ void VectorNavProtocol::readData() {
     parseBuffer();
 }
 
+void VectorNavProtocol::readyReadForTimer() {
+    time.restart();
+
+}
+
+void VectorNavProtocol::timeoutSlot(){
+ double deltaTMax = 3000;
+    if (time.elapsed()>deltaTMax) {
+        m_port.setBaudRate(baudRate);
+        m_port.setPortName("COM7");
+        m_port.open(QIODevice::ReadWrite);
+
+        connect(&m_port, &QSerialPort::readyRead, this, &VectorNavProtocol::readData);
+    }
+}
 
 void VectorNavProtocol::parseBuffer() {
     static int count;

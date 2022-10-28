@@ -20,6 +20,7 @@ public slots:
 protected:
     QTextStream stream;
     QFile file;
+
 };
 
 #endif // LOGGER_H
